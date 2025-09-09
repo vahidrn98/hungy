@@ -1,75 +1,122 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+/**
+ * Adventure Logging Screen
+ * Main screen for creating new adventure entries
+ */
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { AdventureCard } from '@/components/AdventureCard';
+import { AdventureForm } from '@/components/AdventureForm';
+import { AdventureStats } from '@/components/AdventureStats';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { AdventureStyles } from '@/styles/AdventureStyles';
+import { Adventure, AdventureStats as Stats } from '@/types/Adventure';
+import { deleteAdventure, getAdventures, getAdventureStats, saveAdventure } from '@/utils/AdventureStorage';
+import React, { useEffect, useState } from 'react';
+import { Alert, ScrollView, Text, View } from 'react-native';
 
-export default function HomeScreen() {
+export default function AdventureLogScreen() {
+  const [recentAdventures, setRecentAdventures] = useState<Adventure[]>([]);
+  const [stats, setStats] = useState<Stats>({
+    totalThisWeek: 0,
+    mostFrequentIcon: { icon: '', count: 0 },
+    dailyCounts: {},
+  });
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  // Load data when component mounts
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const loadData = async () => {
+    try {
+      const adventures = await getAdventures();
+      const adventureStats = await getAdventureStats();
+      
+      // Get last 3 adventures for display
+      setRecentAdventures(adventures.slice(-3).reverse());
+      setStats(adventureStats);
+    } catch (error) {
+      console.error('Error loading data:', error);
+    }
+  };
+
+  const handleAdventureSubmit = async (adventureData: Omit<Adventure, 'id' | 'timestamp' | 'date'>) => {
+    try {
+      const now = new Date();
+      const newAdventure: Adventure = {
+        id: Date.now().toString(),
+        ...adventureData,
+        timestamp: now,
+        date: now.toISOString().split('T')[0], // YYYY-MM-DD format
+      };
+
+      await saveAdventure(newAdventure);
+      await loadData(); // Refresh data
+      
+      Alert.alert('Success!', 'Adventure logged successfully! 🎉');
+    } catch (error) {
+      console.error('Error saving adventure:', error);
+      Alert.alert('Error', 'Failed to save adventure. Please try again.');
+    }
+  };
+
+  const handleDeleteAdventure = async (id: string) => {
+    try {
+      await deleteAdventure(id);
+      await loadData(); // Refresh data
+    } catch (error) {
+      console.error('Error deleting adventure:', error);
+      Alert.alert('Error', 'Failed to delete adventure. Please try again.');
+    }
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView style={[
+      AdventureStyles.container,
+      isDark && AdventureStyles.darkContainer
+    ]}>
+      <View style={[
+        AdventureStyles.headerContainer,
+        isDark && AdventureStyles.darkHeaderContainer
+      ]}>
+        <Text style={[
+          AdventureStyles.title,
+          isDark && AdventureStyles.darkTitle
+        ]}>
+          Adventure Log
+        </Text>
+        <Text style={[
+          AdventureStyles.bodyText,
+          isDark && AdventureStyles.darkBodyText
+        ]}>
+          Capture your daily moments and adventures
+        </Text>
+      </View>
+
+      <View style={AdventureStyles.contentContainer}>
+        <AdventureStats stats={stats} />
+        
+        <AdventureForm onSubmit={handleAdventureSubmit} />
+
+        {recentAdventures.length > 0 && (
+          <View style={{ marginTop: 20 }}>
+            <Text style={[
+              AdventureStyles.subtitle,
+              isDark && AdventureStyles.darkSubtitle
+            ]}>
+              Recent Adventures
+            </Text>
+            {recentAdventures.map((adventure) => (
+              <AdventureCard
+                key={adventure.id}
+                adventure={adventure}
+                onDelete={handleDeleteAdventure}
+              />
+            ))}
+          </View>
+        )}
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-});

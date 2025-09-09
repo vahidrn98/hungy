@@ -1,110 +1,165 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+/**
+ * Daily Summary Screen
+ * Shows all adventures grouped by date with daily counts
+ */
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
+import { AdventureCard } from '@/components/AdventureCard';
+import { EmptyState } from '@/components/EmptyState';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { AdventureStyles } from '@/styles/AdventureStyles';
+import { DailyAdventures } from '@/types/Adventure';
+import { deleteAdventure, getAdventuresByDate } from '@/utils/AdventureStorage';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useState } from 'react';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 
-export default function TabTwoScreen() {
-  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={
-        <IconSymbol
-          size={310}
-          color="#808080"
-          name="chevron.left.forwardslash.chevron.right"
-          style={styles.headerImage}
+export default function DailySummaryScreen() {
+  const [dailyAdventures, setDailyAdventures] = useState<DailyAdventures[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+
+  // Load data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [])
+  );
+
+  const loadData = async () => {
+    try {
+      const adventures = await getAdventuresByDate();
+      setDailyAdventures(adventures);
+    } catch (error) {
+      console.error('Error loading adventures:', error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  };
+
+  const handleDeleteAdventure = async (id: string) => {
+    try {
+      await deleteAdventure(id);
+      await loadData(); // Refresh data
+    } catch (error) {
+      console.error('Error deleting adventure:', error);
+    }
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    if (dateString === today.toISOString().split('T')[0]) {
+      return 'Today';
+    } else if (dateString === yesterday.toISOString().split('T')[0]) {
+      return 'Yesterday';
+    } else {
+      return date.toLocaleDateString('en-US', { 
+        weekday: 'long', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    }
+  };
+
+  if (dailyAdventures.length === 0) {
+    return (
+      <View style={[
+        AdventureStyles.container,
+        isDark && AdventureStyles.darkContainer
+      ]}>
+        <View style={[
+          AdventureStyles.headerContainer,
+          isDark && AdventureStyles.darkHeaderContainer
+        ]}>
+          <Text style={[
+            AdventureStyles.title,
+            isDark && AdventureStyles.darkTitle
+          ]}>
+            Daily Summary
+          </Text>
+          <Text style={[
+            AdventureStyles.bodyText,
+            isDark && AdventureStyles.darkBodyText
+          ]}>
+            Your adventure timeline
+          </Text>
+        </View>
+        <EmptyState
+          title="No adventures yet"
+          subtitle="Start logging your daily adventures to see them here!"
+          icon="📅"
         />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Explore</ThemedText>
-      </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image source={require('@/assets/images/react-logo.png')} style={{ alignSelf: 'center' }} />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Custom fonts">
-        <ThemedText>
-          Open <ThemedText type="defaultSemiBold">app/_layout.tsx</ThemedText> to see how to load{' '}
-          <ThemedText style={{ fontFamily: 'SpaceMono' }}>
-            custom fonts such as this one.
-          </ThemedText>
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/versions/latest/sdk/font">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful <ThemedText type="defaultSemiBold">react-native-reanimated</ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
-    </ParallaxScrollView>
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView 
+      style={[
+        AdventureStyles.container,
+        isDark && AdventureStyles.darkContainer
+      ]}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
+    >
+      <View style={[
+        AdventureStyles.headerContainer,
+        isDark && AdventureStyles.darkHeaderContainer
+      ]}>
+        <Text style={[
+          AdventureStyles.title,
+          isDark && AdventureStyles.darkTitle
+        ]}>
+          Daily Summary
+        </Text>
+        <Text style={[
+          AdventureStyles.bodyText,
+          isDark && AdventureStyles.darkBodyText
+        ]}>
+          Your adventure timeline
+        </Text>
+      </View>
+
+      <View style={AdventureStyles.contentContainer}>
+        {dailyAdventures.map((day) => (
+          <View key={day.date} style={{ marginBottom: 24 }}>
+            <View style={[
+              AdventureStyles.dailyHeader,
+              isDark && AdventureStyles.darkDailyHeader
+            ]}>
+              <Text style={[
+                AdventureStyles.dailyDate,
+                isDark && AdventureStyles.darkDailyDate
+              ]}>
+                {formatDate(day.date)}
+              </Text>
+              <Text style={[
+                AdventureStyles.dailyCount,
+                isDark && AdventureStyles.darkDailyCount
+              ]}>
+                {day.count} {day.count === 1 ? 'adventure' : 'adventures'}
+              </Text>
+            </View>
+
+            {day.adventures.map((adventure) => (
+              <AdventureCard
+                key={adventure.id}
+                adventure={adventure}
+                onDelete={handleDeleteAdventure}
+              />
+            ))}
+          </View>
+        ))}
+      </View>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-});
