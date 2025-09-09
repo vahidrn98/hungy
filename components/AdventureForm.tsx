@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import { Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../constants/Colors';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { AdventureStyles } from '../styles/AdventureStyles';
 import { Adventure } from '../types/Adventure';
@@ -57,7 +56,7 @@ export const AdventureForm: React.FC<AdventureFormProps> = ({ onSubmit }) => {
           isDark && AdventureStyles.darkInput
         ]}
         placeholder="What did you do today?"
-        placeholderTextColor={isDark ? '#666' : '#999'}
+        placeholderTextColor={isDark ? AdventureStyles.darkPlaceholderText.color : AdventureStyles.placeholderText.color}
         value={title}
         onChangeText={setTitle}
         multiline
@@ -67,7 +66,7 @@ export const AdventureForm: React.FC<AdventureFormProps> = ({ onSubmit }) => {
       <Text style={[
         AdventureStyles.bodyText,
         AdventureStyles.darkBodyText,
-        { marginBottom: 12,color: isDark ? '#FFFFFF' : '#000000' }
+        { marginBottom: 12, color: isDark ? '#FFFFFF' : '#000000' }
       ]}>
         Choose an icon:
       </Text>
@@ -76,26 +75,22 @@ export const AdventureForm: React.FC<AdventureFormProps> = ({ onSubmit }) => {
         style={[
           AdventureStyles.input,
           isDark && AdventureStyles.darkInput,
-          { 
-            flexDirection: 'row', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            marginBottom: 16
-          }
+          AdventureStyles.iconSelectorButton
         ]}
         onPress={() => setShowIconModal(true)}
       >
-        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={{ fontSize: 24, marginRight: 12 }}>{selectedIcon}</Text>
+        <View style={AdventureStyles.iconSelectorContent}>
+          <Text style={AdventureStyles.iconSelectorIcon}>{selectedIcon}</Text>
           <Text style={[
             AdventureStyles.bodyText,
             isDark && AdventureStyles.darkBodyText,
-            { marginBottom: 0,color: isDark ? '#FFFFFF' : '#000000' }
+            AdventureStyles.iconSelectorText,
+            { color: isDark ? '#FFFFFF' : '#000000' }
           ]}>
             Tap to choose icon
           </Text>
         </View>
-        <Text style={{ fontSize: 18, color: Colors.light.primary }}>›</Text>
+        <Text style={AdventureStyles.iconSelectorArrow}>›</Text>
       </TouchableOpacity>
 
       <TouchableOpacity

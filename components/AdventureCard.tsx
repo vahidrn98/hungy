@@ -5,7 +5,6 @@
 
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Colors } from '../constants/Colors';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { AdventureStyles } from '../styles/AdventureStyles';
 import { Adventure } from '../types/Adventure';
@@ -44,24 +43,15 @@ export const AdventureCard: React.FC<AdventureCardProps> = ({ adventure, onDelet
          {onDelete && (
            <TouchableOpacity
              onPress={() => onDelete(adventure.id)}
-             style={{
-               width: 32,
-               height: 32,
-               borderRadius: 16,
-               backgroundColor: isDark ? Colors.dark.error + '20' : Colors.light.error + '20',
-               borderWidth: 1,
-               borderColor: isDark ? Colors.dark.error : Colors.light.error,
-               alignItems: 'center',
-               justifyContent: 'center',
-              
-               }}
+             style={[
+               AdventureStyles.deleteButton,
+               isDark && AdventureStyles.darkDeleteButton
+             ]}
            >
-             <Text style={{ 
-               color: isDark ? Colors.dark.error : Colors.light.error, 
-               fontSize: 18,
-               fontWeight: 'bold',
-               lineHeight: 18
-             }}>×</Text>
+             <Text style={[
+               AdventureStyles.deleteButtonText,
+               isDark && AdventureStyles.darkDeleteButtonText
+             ]}>×</Text>
            </TouchableOpacity>
          )}
       </View>

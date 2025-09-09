@@ -13,7 +13,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { Colors } from '../constants/Colors';
 import { useColorScheme } from '../hooks/useColorScheme';
 import { AdventureStyles } from '../styles/AdventureStyles';
 
@@ -56,33 +55,14 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
   const renderIcon = ({ item }: { item: string }) => (
     <TouchableOpacity
       style={[
-        {
-          width: ICON_SIZE,
-          height: ICON_SIZE,
-          margin: 4,
-          borderRadius: 8,
-          alignItems: 'center',
-          justifyContent: 'center',
-          borderWidth: 2,
-          borderColor: selectedIcon === item
-            ? Colors.light.primary
-            : 'transparent',
-          backgroundColor: selectedIcon === item
-            ? Colors.light.primary + '20'
-            : 'transparent',
-        },
-        isDark && {
-          borderColor: selectedIcon === item
-            ? Colors.dark.primary
-            : 'transparent',
-          backgroundColor: selectedIcon === item
-            ? Colors.dark.primary + '20'
-            : 'transparent',
-        }
+        AdventureStyles.iconGridItem,
+        { width: ICON_SIZE, height: ICON_SIZE },
+        selectedIcon === item && AdventureStyles.iconGridItemSelected,
+        selectedIcon === item && isDark && AdventureStyles.darkIconGridItemSelected
       ]}
       onPress={() => onSelectIcon(item)}
     >
-      <Text style={{ fontSize: 24 }}>{item}</Text>
+      <Text style={AdventureStyles.iconGridText}>{item}</Text>
     </TouchableOpacity>
   );
 
@@ -90,39 +70,17 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
     <TouchableOpacity
       key={category}
       style={[
-        {
-          paddingHorizontal: 16,
-          paddingVertical: 8,
-          marginHorizontal: 4,
-          borderRadius: 20,
-          backgroundColor: selectedCategory === category
-            ? Colors.light.primary
-            : Colors.light.surface,
-          borderWidth: 1,
-          borderColor: Colors.light.border,
-        },
-        isDark && {
-          backgroundColor: selectedCategory === category
-            ? Colors.dark.primary
-            : Colors.dark.surface,
-          borderColor: Colors.dark.border,
-        }
+        AdventureStyles.categoryButton,
+        isDark && AdventureStyles.darkCategoryButton,
+        selectedCategory === category && AdventureStyles.categoryButtonSelected,
+        selectedCategory === category && isDark && AdventureStyles.darkCategoryButtonSelected
       ]}
       onPress={() => setSelectedCategory(category)}
     >
       <Text style={[
-        {
-          fontSize: 14,
-          fontWeight: '600',
-          color: selectedCategory === category
-            ? '#FFFFFF'
-            : Colors.light.text,
-        },
-        isDark && {
-          color: selectedCategory === category
-            ? '#FFFFFF'
-            : Colors.dark.text,
-        }
+        AdventureStyles.categoryButtonText,
+        isDark && AdventureStyles.darkCategoryButtonText,
+        selectedCategory === category && AdventureStyles.categoryButtonTextSelected
       ]}>
         {category}
       </Text>
@@ -147,7 +105,7 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
           isDark && AdventureStyles.darkHeaderContainer,
           { paddingTop: 20, paddingBottom: 20 }
         ]}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+          <View style={AdventureStyles.modalHeaderRow}>
             <Text style={[
               AdventureStyles.title,
               isDark && AdventureStyles.darkTitle,
@@ -157,24 +115,19 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
             </Text>
             <TouchableOpacity
               onPress={onClose}
-              style={{
-                paddingVertical: 8,
-                paddingHorizontal: 14,
-                borderRadius: 20,
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-              }}
+              style={AdventureStyles.modalCloseButton}
             >
-              <Text style={{ color: '#FFFFFF', fontSize: 18, fontWeight: 'bold' }}>✕</Text>
+              <Text style={AdventureStyles.modalCloseButtonText}>✕</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Category Selector */}
-        <View style={{ justifyContent: 'flex-start' }}>
+        <View style={AdventureStyles.categorySelectorContainer}>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={{ paddingVertical: 12, paddingHorizontal: 16, }}
+            style={AdventureStyles.categoryScrollView}
             contentContainerStyle={{ paddingRight: 20, flex: 1 }}
           >
             {Object.keys(EMOJI_CATEGORIES).map(renderCategoryButton)}
@@ -182,7 +135,7 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
         </View>
 
         {/* Icon Grid */}
-        <View style={{ paddingHorizontal: 16, marginBottom: 16 }}>
+        <View style={AdventureStyles.iconGridContainer}>
           <FlatList
             data={EMOJI_CATEGORIES[selectedCategory as keyof typeof EMOJI_CATEGORIES]}
             renderItem={renderIcon}
@@ -190,7 +143,7 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
             keyExtractor={(item) => item}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingBottom: 20 }}
-            style={{ maxHeight: 300 }}
+            style={AdventureStyles.iconGridList}
           />
         </View>
 
@@ -207,13 +160,8 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
           ]}>
             Selected Icon:
           </Text>
-          <View style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            paddingVertical: 16
-          }}>
-            <Text style={{ fontSize: 48, marginRight: 16 }}>{selectedIcon}</Text>
+          <View style={AdventureStyles.selectedIconDisplay}>
+            <Text style={AdventureStyles.selectedIconText}>{selectedIcon}</Text>
             <TouchableOpacity
               style={[
                 AdventureStyles.button,

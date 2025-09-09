@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "hungi",
-    "slug": "hungi",
+    "name": "Hungy",
+    "slug": "Hungy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "hungi",
+    "scheme": "Hungy",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {

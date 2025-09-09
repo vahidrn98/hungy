@@ -5,8 +5,8 @@
 
 import React from 'react';
 import { Text, View } from 'react-native';
-import { Colors } from '../constants/Colors';
 import { useColorScheme } from '../hooks/useColorScheme';
+import { AdventureStyles } from '../styles/AdventureStyles';
 
 interface AdventureTabIconProps {
   emoji: string;
@@ -23,24 +23,16 @@ export const AdventureTabIcon: React.FC<AdventureTabIconProps> = ({
   const isDark = colorScheme === 'dark';
 
   return (
-    <View style={{
-      alignItems: 'center',
-      justifyContent: 'center',
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      backgroundColor: focused 
-        ? (isDark ? Colors.dark.primary + '20' : Colors.light.primary + '20')
-        : 'transparent',
-      borderWidth: focused ? 2 : 0,
-      borderColor: focused 
-        ? (isDark ? Colors.dark.primary : Colors.light.primary)
-        : 'transparent',
-    }}>
-      <Text style={{
-        fontSize: size,
-        opacity: focused ? 1 : 0.6,
-      }}>
+    <View style={[
+      AdventureStyles.tabIconContainer,
+      focused && AdventureStyles.tabIconContainerFocused,
+      focused && isDark && AdventureStyles.darkTabIconContainerFocused
+    ]}>
+      <Text style={[
+        AdventureStyles.tabIconText,
+        focused && AdventureStyles.tabIconTextFocused,
+        { fontSize: size }
+      ]}>
         {emoji}
       </Text>
     </View>
