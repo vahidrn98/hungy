@@ -97,7 +97,7 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
       <View style={[
         AdventureStyles.container,
         isDark && AdventureStyles.darkContainer,
-        { paddingTop: 60, flex: 1, justifyContent: 'flex-start' }
+        { flex: 1, justifyContent: 'flex-start' }
       ]}>
         {/* Header */}
         <View style={[
@@ -128,7 +128,7 @@ export const IconSelectorModal: React.FC<IconSelectorModalProps> = ({
             horizontal
             showsHorizontalScrollIndicator={false}
             style={AdventureStyles.categoryScrollView}
-            contentContainerStyle={{ paddingRight: 20, flex: 1 }}
+            contentContainerStyle={{ paddingRight: 20 }}
           >
             {Object.keys(EMOJI_CATEGORIES).map(renderCategoryButton)}
           </ScrollView>

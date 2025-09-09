@@ -88,7 +88,8 @@ export default function AdventureLogScreen() {
         </Text>
         <Text style={[
           AdventureStyles.bodyText,
-          isDark && AdventureStyles.darkBodyText
+          isDark && AdventureStyles.darkBodyText,
+          { textAlign: 'center' }
         ]}>
           Capture your daily moments and adventures
         </Text>

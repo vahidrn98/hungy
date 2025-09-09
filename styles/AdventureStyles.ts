@@ -431,6 +431,7 @@ export const AdventureStyles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    marginLeft: 20,
   },
   modalCloseButtonText: {
     color: '#FFFFFF',
